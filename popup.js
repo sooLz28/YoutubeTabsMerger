@@ -1,5 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
-
+document.addEventListener('DOMContentLoaded', async () => {
 const videosList = document.getElementById("videoList");
 const statusDiv = document.getElementById('status');
 const mergeBtn = document.getElementById("mergeBtn");
@@ -7,7 +6,19 @@ let videoIds = [];
 let tabIdsToClose = [];
 let videoTitles = [];
 
-document.getElementById('findBtn').addEventListener('click', async () => {
+findVideos()
+
+
+document.getElementById('refreshBtn').addEventListener('click', async () => {
+    findVideos()
+});
+
+async function findVideos(){
+    videoIds = []
+    videoTitles = []
+    tabIdsToClose = []
+
+
     statusDiv.textContent = "Finding...";
 
     // Find all open youtube video tabs
@@ -18,28 +29,75 @@ document.getElementById('findBtn').addEventListener('click', async () => {
         return;
     }
 
+    fetchData(tabs)
 
 
-    // Extract the video ID (the "v" parameter) from each tab's URL
-    tabs.forEach(tab => {
-        try {
-            let url = new URL(tab.url);
-            let videoId = url.searchParams.get('v');
-            let title = tab.title.replace(" - YouTube", "");
-        
-        if (videoId) {
-            videoIds.push(videoId);
-            tabIdsToClose.push(tab.id);
-            videoTitles.push(title)
-        }
-        } catch (e) {
-            console.error("Error parsing URL:", tab.url);
-        }
-    });
+
     previewTabs(videoTitles)
     mergeBtn.disabled = false
+}
+
+document.getElementById('mergeBtn').addEventListener('click', async () => {
+    let selectedIds = []
+
+    videoIds.forEach((videoid, index) => {
+        let ischecked = document.getElementById(`videoItem${index}`).checked
+        
+        if (ischecked){
+            selectedIds.push(videoid)
+        }
+    });
+    statusDiv.textContent = `${selectedIds}`;
+    if (selectedIds.length > 0) {
+        createWatchlist(selectedIds)
+        videoIds = []
+    } 
+    else {
+        statusDiv.textContent = "Could not find any video IDs.";
+    }
+
 });
 
+
+async function fetchData(tabs){
+    // Extract the video ID (the "v" parameter) from each tab's URL
+    
+    // tabs.forEach(tab => {
+    //     try {
+            
+    //         let url = new URL(tab.url);
+    //         let videoId = url.searchParams.get('v');
+    //         let title = tab.title.replace(" - YouTube", "");
+    //         // let timeWatched = await chrome.tab.sendMessage(tab.id, { action: "get_video_time" });
+
+    //     if (videoId) {
+    //         videoIds.push(videoId);
+    //         tabIdsToClose.push(tab.id);
+    //         videoTitles.push(title)
+    //         console.log(timeWatched)
+    //     }
+    //     } catch (e) {
+    //         console.log("Error parsing URL:", tab.url);
+    //     }
+    // });
+    for(const tab of tabs){
+    try {
+        
+        let url = new URL(tab.url);
+        let videoId = url.searchParams.get('v');
+        let title = tab.title.replace(" - YouTube", "");
+
+    if (videoId) {
+        videoIds.push(videoId);
+        tabIdsToClose.push(tab.id);
+        videoTitles.push(title)
+        console.log(timeWatched)
+    }
+    } catch (e) {
+        console.log("Error parsing URL:", tab.url);
+    }
+};
+}
 function previewTabs(titles) {
     console.log("previewing...");
     console.log(`Video Titles:`, titles); // Fixed variable name
@@ -61,25 +119,7 @@ function previewTabs(titles) {
     });
 }
 
-document.getElementById('mergeBtn').addEventListener('click', async () => {
-    let selectedIds = []
 
-    videoIds.forEach((videoid, index) => {
-        let ischecked = document.getElementById(`videoItem${index}`).checked
-        
-        if (ischecked){
-            selectedIds.push(videoid)
-        }
-    });
-    statusDiv.textContent = `${selectedIds}`;
-    if (selectedIds.length > 0) {
-        createWatchlist(selectedIds)
-    } 
-    else {
-        statusDiv.textContent = "Could not find any video IDs.";
-    }
-
-});
 
 
 
