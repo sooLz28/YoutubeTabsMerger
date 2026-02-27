@@ -8,5 +8,11 @@
   "action": {
     "default_popup": "popup.html",
     "default_title": "Merge YouTube Tabs"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/watch*"],
+      "js": ["content.js"]
+    }
+  ]
 }
