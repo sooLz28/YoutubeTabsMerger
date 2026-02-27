@@ -12,5 +12,6 @@ Create a folder named `YT-Tab-Merger` and place these three files inside it:
 3. **`popup.js`** (The logic script)
 
 ---
-
+Please feel free to contribute!
+---
 > **Note:** YouTube's `watch_videos` link creates a "Temporary Playlist." and it's not saved into your account.
