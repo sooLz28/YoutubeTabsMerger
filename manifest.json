@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Tabs Merger",
+  "version": "1.0",
+  "description": "Merges multiple open YouTube tabs into a single queue/playlist tab.",
+  "permissions": ["tabs"],
+  "host_permissions": ["*://*.youtube.com/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Merge YouTube Tabs"
+  }
+}
