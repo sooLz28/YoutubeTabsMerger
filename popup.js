@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 const videosList = document.getElementById("videoList");
 const statusDiv = document.getElementById('status');
 const mergeBtn = document.getElementById("mergeBtn");
+const closeTabsCheck = document.getElementById("closeTabsCheck");
 let videoIds = [];
-let tabIdsToClose = [];
 let videoTitles = [];
-
+let tabs = []
 findVideos()
 
 
@@ -16,13 +16,13 @@ document.getElementById('refreshBtn').addEventListener('click', async () => {
 async function findVideos(){
     videoIds = []
     videoTitles = []
-    tabIdsToClose = []
+
 
 
     statusDiv.textContent = "Finding...";
 
     // Find all open youtube video tabs
-    const tabs = await chrome.tabs.query({ url: "*://*.youtube.com/watch*" });
+    tabs = await chrome.tabs.query({ url: "*://*.youtube.com/watch*" });
 
     if (tabs.length === 0) {
         statusDiv.textContent = "No YouTube video tabs were found.";
@@ -39,12 +39,13 @@ async function findVideos(){
 
 document.getElementById('mergeBtn').addEventListener('click', async () => {
     let selectedIds = []
-
+    let selectedTabs = []
     videoIds.forEach((videoid, index) => {
         let ischecked = document.getElementById(`videoItem${index}`).checked
         
         if (ischecked){
             selectedIds.push(videoid)
+            selectedTabs.push(tabs[index])
         }
     });
     statusDiv.textContent = `${selectedIds}`;
@@ -55,31 +56,16 @@ document.getElementById('mergeBtn').addEventListener('click', async () => {
     else {
         statusDiv.textContent = "Could not find any video IDs.";
     }
+    // Close selected tabs
+    if (closeTabsCheck.checked){
+        await chrome.tabs.remove(selectedTabs);
+    }
 
 });
 
 
 async function fetchData(tabs){
-    // Extract the video ID (the "v" parameter) from each tab's URL
-    
-    // tabs.forEach(tab => {
-    //     try {
-            
-    //         let url = new URL(tab.url);
-    //         let videoId = url.searchParams.get('v');
-    //         let title = tab.title.replace(" - YouTube", "");
-    //         // let timeWatched = await chrome.tab.sendMessage(tab.id, { action: "get_video_time" });
 
-    //     if (videoId) {
-    //         videoIds.push(videoId);
-    //         tabIdsToClose.push(tab.id);
-    //         videoTitles.push(title)
-    //         console.log(timeWatched)
-    //     }
-    //     } catch (e) {
-    //         console.log("Error parsing URL:", tab.url);
-    //     }
-    // });
     for(const tab of tabs){
     try {
         
@@ -89,7 +75,6 @@ async function fetchData(tabs){
 
     if (videoId) {
         videoIds.push(videoId);
-        tabIdsToClose.push(tab.id);
         videoTitles.push(title)
         console.log(timeWatched)
     }
@@ -119,19 +104,12 @@ function previewTabs(titles) {
     });
 }
 
-
-
-
-
-
 async function createWatchlist(videoIds){
     // built-in way to create a queue list
     const playlistUrl = `https://www.youtube.com/watch_videos?video_ids=${videoIds.join(',')}`;
 
     await chrome.tabs.create({ url: playlistUrl });
 
-    // Close all the original, individual tabs
-    // await chrome.tabs.remove(tabIdsToClose);
 
     statusDiv.textContent = `Merged ${videoIds.length} videos!`;
 }
