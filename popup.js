@@ -40,6 +40,9 @@ async function findVideos(){
 document.getElementById('mergeBtn').addEventListener('click', async () => {
     let selectedIds = []
     let selectedTabs = []
+
+    statusDiv.textContent = "Merging";
+
     videoIds.forEach((videoid, index) => {
         let ischecked = document.getElementById(`videoItem${index}`).checked
         
@@ -48,7 +51,6 @@ document.getElementById('mergeBtn').addEventListener('click', async () => {
             selectedTabs.push(tabs[index])
         }
     });
-    statusDiv.textContent = `${selectedIds}`;
     if (selectedIds.length > 0) {
         createWatchlist(selectedIds)
         videoIds = []
@@ -84,10 +86,10 @@ async function fetchData(tabs){
 };
 }
 function previewTabs(titles) {
-    console.log("previewing...");
-    console.log(`Video Titles:`, titles); // Fixed variable name
+    
+    
+    statusDiv.textContent = "Previewing...";
 
-    // Clear the list first so you don't double-post if the function runs twice
     videosList.innerHTML = ''; 
 
     titles.forEach((title, index) => {
@@ -102,6 +104,7 @@ function previewTabs(titles) {
         `;
         videosList.insertAdjacentHTML('beforeend', item);
     });
+    statusDiv.textContent = "";
 }
 
 async function createWatchlist(videoIds){
